@@ -1,0 +1,1 @@
+console.log(document.body.getElementsByClassName("chat-line__message"));
