@@ -20,3 +20,9 @@ function changeTextArea(input){
   textArea.value = input;
   console.log("Previous Message: ".concat(currentMessage));
 }
+
+browser.runtime.onMessage.addListener(request => {
+    console.log("Hangman Recieved")
+    console.log(request.hangman)
+    return Promise.resolve({response: "Hangman Recieved!"})
+})
