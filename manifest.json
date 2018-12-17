@@ -13,6 +13,11 @@
     "background": {
         "scripts": ["background-script.js"]
     },
+
+    "sidebar_action": {
+      "default_title": "Mod Helper",
+      "default_panel": "sidebar.html"
+    },
   
     "content_scripts": [
       {
