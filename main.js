@@ -11,6 +11,8 @@ chat.addEventListener("DOMNodeInserted", function(event){
     "message": message[1].trim()
   });
   changeTextArea(message[1].trim());
+
+  
 }, false);
 
 function changeTextArea(input){
