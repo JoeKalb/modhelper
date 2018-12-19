@@ -49,11 +49,7 @@ mainPort.onMessage.addListener(m => {
 });
 
 function newWordSetting(word){
-  let result = word
-  console.log("Before replacing: " + result)
-  // figure out this replacement piece
-  result.replace(/[A_Z]/, '-')
-  console.log("After Replacing: " + result)
+  let result = word.replace(/[A-Z]/g, '-')
   return result
 }
 let hangman = {
@@ -61,13 +57,13 @@ let hangman = {
   found: false,
   pause: false,
   winner: "",
-  current: "",
+  display: "",
   guessed: {},
   start: function(newInfo){
     info = newInfo
     console.log(info)
-    current = newWordSetting(newInfo.answer)
-    console.log(current)
+    display = newWordSetting(newInfo.answer)
+    console.log(display)
     startListening();
   },
   pauseToggle: function(){
