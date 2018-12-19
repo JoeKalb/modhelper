@@ -1,29 +1,27 @@
 {
+  "manifest_version": 2,
+  "name": "Mod Helper",
+  "version": "0.1",
 
-    "manifest_version": 2,
-    "name": "Mod Helper",
-    "version": "0.1",
-  
-    "description": "Add extra functions for twitch chat",
-  
-    "icons": {
-      "48": "icons/border-48.png"
-    },
+  "description": "Add extra functions for twitch chat",
 
-    "background": {
-        "scripts": ["background-script.js"]
-    },
+  "icons": {
+    "48": "icons/border-48.png"
+  },
 
-    "sidebar_action": {
-      "default_title": "Mod Helper",
-      "default_panel": "sidebar.html"
-    },
-  
-    "content_scripts": [
-      {
-        "matches": ["*://www.twitch.tv/*"],
-        "js": ["main.js", "sidebar-script.js"]
-      }
-    ]
-  
-  }
+  "background": {
+      "scripts": ["background-script.js"]
+  },
+
+  "sidebar_action": {
+    "default_title": "Mod Helper",
+    "default_panel": "sidebar.html"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://www.twitch.tv/*"],
+      "js": ["main.js", "sidebar-script.js"]
+    }
+  ]
+}

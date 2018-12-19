@@ -6,18 +6,31 @@ function connect(p) {
   ports[p.name].postMessage({greeting: "hello from background-script"});
   ports[p.name].onMessage.addListener(function(m) {
     if(m.greeting == "hangman") startHangman(m.hangman)
-    if(m.greeting == "testBtn") testingMainPose()
+    else if(m.greeting == "testBtn") sendToMain("test")
+    else if(m.greeting == "PING") showConnect(p.name)
+    else if(m.greeting == "pause") sendToMain("pause")
+    else if(m.greeting == "clear") sendToMain("clear")
   });
 }
 
 function startHangman(info){
   console.log("Starting hangman")
-  console.log(ports)
   console.log(info)
+  ports["main.js"].postMessage({
+    greeting: "hangman",
+    hangman: info
+  })
 }
 
-function testingMainPose(){
-  ports["main.js"].postMessage({greeting: "This is a test"})
+function sendToMain(message){
+  ports["main.js"].postMessage({
+    greeting: message
+  })
+}
+
+function showConnect(name){
+  console.log("PING")
+  ports[name].postMessage({greeting: "PONG"})
 }
 
 browser.runtime.onConnect.addListener(connect)

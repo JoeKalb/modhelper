@@ -4,20 +4,36 @@ let hangman = {
   "lettersCount":{}
 }
 
+const wordDisplay = document.getElementById("title")
+const input = document.getElementById("wordInput")
+
 const startBtn = document.getElementById("start")
 const pauseBtn = document.getElementById("pause")
-const stopBtn = document.getElementById("stop")
+const clearBtn = document.getElementById("clear")
 
-stopBtn.addEventListener('click', stopGame)
+clearBtn.addEventListener('click', clearGame)
 pauseBtn.addEventListener('click', pauseGame)
 startBtn.addEventListener('click', startGame)
 
-function stopGame(){
-  console.log("game stopped")
+function clearGame(){
+  // this will clear all game info (resets everything)
+  wordDisplay.innerHTML = "Word"
+  input.value = ""
+  pauseBtn.innerHTML = "PAUSE"
+  sideBarPort.postMessage({greeting: "clear"})
+  console.log("game cleared")
 }
 
 function pauseGame(){
-  console.log("game paused")
+  if (pauseBtn.innerHTML == "PAUSE"){
+    console.log("pausing game")
+    pauseBtn.innerHTML = "UNPAUSE"
+  }
+  else {
+    console.log("unpausing game")
+    pauseBtn.innerHTML = "PAUSE"
+  }
+  sideBarPort.postMessage({greeting: "pause"})
 }
 
 function startGame() {
@@ -51,12 +67,12 @@ let sideBarPort = browser.runtime.connect({name: "sidebar-script.js"})
 testBtn.addEventListener('click', test)
 
 function test(){
+  console.log("Test sidebar")
   sideBarPort.postMessage({greeting: "testBtn"})
 }
 
-sideBarPort.postMessage({greeting: "hello from sidebar-script.js"})
+sideBarPort.postMessage({greeting: "PING"})
 
 sideBarPort.onMessage.addListener(m => {
-  console.log("in sidebar-script, received message from bacground script")
   console.log(m.greeting)
 })

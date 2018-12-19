@@ -3,34 +3,85 @@ let textArea = document.getElementsByTagName("textarea")[0];
 
 let messages = [];
 let currentMessage = "";
+function startListening(){
+  chat.addEventListener("DOMNodeInserted", chatListen, false);
+}
 
-
-chat.addEventListener("DOMNodeInserted", function(event){
+function chatListen(event){
   message = event.srcElement.innerText.split(':', 2);
-  messages.push({
-    "username": message[0],
-    "message": message[1].trim()
-  });
-  changeTextArea(message[1].trim());
-}, false);
+    messages.push({
+      "username": message[0],
+      "message": message[1].trim()
+    });
+    changeTextArea(message[1].trim());
+}
 
-let myPort = browser.runtime.connect({name: "main.js"})
+function stopListening(){
+  chat.removeEventListener("DOMNodeInserted", chatListen, false);
+}
+
+let mainPort = browser.runtime.connect({name: "main.js"})
+let connected = false;
+// set timer to try a reconnect, 2 seconds at first
+setInterval(tryConnect(), 2000);
+
+function tryConnect(){
+  if(!connected)
+    mainPort.postMessage({greeting: "PING"})
+}
 
 function changeTextArea(input){
   currentMessage = textArea.value;
   textArea.value = input;
-  myPort.postMessage({greeting: input})
+  mainPort.postMessage({greeting: input})
 }
 
- myPort.runtime.onMessage.addListener(request => {
-    console.log("Message Recieved")
-    console.log(request.greeting)
-    return Promise.resolve({response: "Message Recieved!"})
-})
-
-myPort.postMessage({greeting: "hello from main.js"})
-
-myPort.onMessage.addListener(m => {
-  console.log("message recieved")
+mainPort.onMessage.addListener(m => {
   console.log(m.greeting)
+  if(m.greeting == "hangman")
+    hangman.start(m.hangman)
+  else if(m.greeting == "PONG")
+    connected = true;
+  else if(m.greeting == "pause")
+    hangman.pauseToggle()
+  else if(m.greeting == "clear")
+    hangman.clearGame()
 });
+
+function newWordSetting(word){
+  let result = word
+  console.log("Before replacing: " + result)
+  // figure out this replacement piece
+  result.replace(/[A_Z]/, '-')
+  console.log("After Replacing: " + result)
+  return result
+}
+let hangman = {
+  info:{},
+  found: false,
+  pause: false,
+  winner: "",
+  current: "",
+  guessed: {},
+  start: function(newInfo){
+    info = newInfo
+    console.log(info)
+    current = newWordSetting(newInfo.answer)
+    console.log(current)
+    startListening();
+  },
+  pauseToggle: function(){
+    console.log("Pause Toggle")
+    (pause) ? pause = false : pause = true;
+    (pause) ? 
+      console.log("Game Paused") : 
+      console.log("Game Unpaused");
+  },
+  clearGame: function(){
+    console.log("Clearing Game Data")
+    info, guessed = {}
+    found, pause = false
+    winner, current = ""
+    stopListening();
+  }
+}
