@@ -33,19 +33,17 @@ function startGame() {
         hangman.lettersCount[el] += 1 : hangman.lettersCount[el] = 1;
   });
 
-  //  'My guesses are a and B'.match(/\b\w\b/gi) // looks for first single letter in a message
+  //  'My guesses are a and B'.match(/\b\w\b/gi) 
+  // looks for first single letter in a message
   sendHangmanInfo(hangman)
 }
 
 function sendHangmanInfo(info){
-  sidebarAction.tabs.sendMessage(
-    tab.id,
-    {hangman: info}
-  ).then(response => {
-    console.log("Content Script Response: " + response.response)
-  }).catch(console.log("Error with promise!"))
+  sideBarPort.postMessage({
+    greeting: "hangman",
+    hangman: info
+  })
 }
-
 
 const testBtn = document.getElementById("test")
 let sideBarPort = browser.runtime.connect({name: "sidebar-script.js"})
@@ -55,7 +53,6 @@ testBtn.addEventListener('click', test)
 function test(){
   sideBarPort.postMessage({greeting: "testBtn"})
 }
-
 
 sideBarPort.postMessage({greeting: "hello from sidebar-script.js"})
 

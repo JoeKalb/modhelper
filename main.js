@@ -3,7 +3,7 @@ let textArea = document.getElementsByTagName("textarea")[0];
 
 let messages = [];
 let currentMessage = "";
-let myPort = browser.runtime.connect({name: "main.js"})
+
 
 chat.addEventListener("DOMNodeInserted", function(event){
   message = event.srcElement.innerText.split(':', 2);
@@ -14,21 +14,23 @@ chat.addEventListener("DOMNodeInserted", function(event){
   changeTextArea(message[1].trim());
 }, false);
 
+let myPort = browser.runtime.connect({name: "main.js"})
+
 function changeTextArea(input){
   currentMessage = textArea.value;
   textArea.value = input;
   myPort.postMessage({greeting: input})
 }
 
-browser.runtime.onMessage.addListener(request => {
-    console.log("Hangman Recieved")
-    console.log(request.hangman)
-    return Promise.resolve({response: "Hangman Recieved!"})
+ myPort.runtime.onMessage.addListener(request => {
+    console.log("Message Recieved")
+    console.log(request.greeting)
+    return Promise.resolve({response: "Message Recieved!"})
 })
 
 myPort.postMessage({greeting: "hello from main.js"})
 
 myPort.onMessage.addListener(m => {
-  console.log("in the content script, received message from background script")
+  console.log("message recieved")
   console.log(m.greeting)
 });
