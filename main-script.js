@@ -1,8 +1,8 @@
-
+"use strict";
 
 let chat = document.getElementsByClassName("chat-list__lines tw-flex-grow-1 scrollable-area")[0];
 let textArea = document.getElementsByTagName("textarea")[0];
-let twitchBtns = document.getElementsByClassName("tw-interactive tw-button")
+let twitchBtns = document.getElementsByTagName("button")
 let chatBtn = findChatButton(twitchBtns)
 
 function findChatButton(btns){
@@ -35,13 +35,13 @@ observer.observe(chat, mutationConfig)
 */
 function chatListen(event){
   if(!hangman.getPause()){
-    console.log("Now listening to chat")
-    message = event.srcElement.innerText.split(':', 2);
+    let name = event.srcElement.getElementsByClassName("chat-line__username")[0].innerText;
+    let message = event.srcElement.getElementsByClassName("text-fragment")[0].innerText;
     messages.push({
-      "username": message[0],
-      "message": message[1].trim()
+      "username": name,
+      "message": message
     });
-    changeTextArea(message[1].trim());
+    console.log(name + ": " +message);
   }
 }
 
@@ -58,7 +58,7 @@ function tryConnect(){
 function changeTextArea(input){
   currentMessage = textArea.value;
   textArea.value = input;
-  mainPort.postMessage({greeting: input})
+  setTimeout(chatBtn.click(), 1000);
 }
 
 mainPort.onMessage.addListener(m => {
@@ -91,6 +91,8 @@ let hangman = {
     this.info = newInfo
     this.display = newInfo.answer.replace(/[A-Z]/g, '-')
     startListening()
+
+    changeTextArea(this.display)
   },
   pauseToggle: function(){
     console.log("Pause Toggle Called")

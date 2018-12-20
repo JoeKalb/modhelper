@@ -76,3 +76,4 @@ sideBarPort.postMessage({greeting: "PING"})
 sideBarPort.onMessage.addListener(m => {
   console.log(m.greeting)
 })
+
