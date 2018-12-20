@@ -1,54 +1,26 @@
 "use strict";
 
-let chat = document.getElementsByClassName("chat-list__lines tw-flex-grow-1 scrollable-area")[0];
+let chat = document.getElementsByClassName("tw-flex-grow-1 tw-full-height tw-pd-b-1")[0];
 let textArea = document.getElementsByTagName("textarea")[0];
-let twitchBtns = document.getElementsByTagName("button")
-let chatBtn = findChatButton(twitchBtns)
-
-function findChatButton(btns){
-  for(let i in btns){
-    if(/>Chat</g.test(btns[i].innerHTML)){
-      return btns[i];
-    }
-  }
-  console.log("chatBtn not found")
-  return -1;
-}
 
 let messages = [];
 let currentMessage = "";
-function startListening(){
-  chat.addEventListener("DOMNodeInserted", chatListen, false);
-}
-/* 
-// trying to swap to MutationObserver
-let mutationConfig = { attributes: true, childList: true, subtree: true }
-let callback = function(mutationList, observer){
-  for(let mutation in mutationList){
-    if(mutation.type == "childList"){
-      console.log(mutation)
-    }
-  }
-}
-let observer = new MutationObserver(callback)
-observer.observe(chat, mutationConfig)
-*/
-function chatListen(event){
-  if(!hangman.getPause()){
-    let name = event.srcElement.getElementsByClassName("chat-line__username")[0].innerText;
-    let message = event.srcElement.getElementsByClassName("text-fragment")[0].innerText;
-    messages.push({
-      "username": name,
-      "message": message
-    });
-    console.log(name + ": " +message);
-  }
-}
+
+let name = "";
+let message = "";
+const observer = new MutationObserver(mutations =>{
+  mutations.forEach(mutation =>{
+    name = mutation.addedNodes[0].getElementsByClassName("chat-line__username")[0].innerText
+    message = mutation.addedNodes[0].getElementsByClassName("text-fragment")[0].innerText.toUpperCase()
+    console.log(name +": "+ message)
+    // game logic goes here
+  })
+})
 
 let mainPort = browser.runtime.connect({name: "main.js"})
 let connected = false;
-// set timer to try a reconnect, 2 seconds at first
-setInterval(tryConnect(), 2000);
+// set timer to try a reconnect, 10 seconds at first
+setTimer(tryConnect(), 10000);
 
 function tryConnect(){
   if(!connected)
@@ -58,7 +30,8 @@ function tryConnect(){
 function changeTextArea(input){
   currentMessage = textArea.value;
   textArea.value = input;
-  setTimeout(chatBtn.click(), 1000);
+  textArea.focus()
+  textArea.dispatchEvent(ev);
 }
 
 mainPort.onMessage.addListener(m => {
@@ -90,17 +63,17 @@ let hangman = {
   start: function(newInfo){
     this.info = newInfo
     this.display = newInfo.answer.replace(/[A-Z]/g, '-')
-    startListening()
+    observer.observe(chat, {childList:true})
 
     changeTextArea(this.display)
   },
   pauseToggle: function(){
     console.log("Pause Toggle Called")
     if(this.pause) {
-      this.pause = false;
+      this.pause = false
       console.log("Game is now unpaused")
     } else{
-      this.pause = true;
+      this.pause = true
       console.log("Game is now paused")
     }
   },
@@ -113,5 +86,45 @@ let hangman = {
     this.found, this.pause = false
     this.winner, this.current = ""
     textArea.value = ""
+    observer.disconnect();
+  },
+  isNewGuess: function(letter){
+    if(this.guessed[letter])
+      return false
+    this.guessed[letter] = this.info.answer.includes(letter)
+    return true
   }
 }
+
+
+textArea.onkeydown = function(e) {
+  if (e.key == "Enter") {
+    console.log('enter key pressed');
+  }
+  e.preventDefault();
+};
+
+const ev = new KeyboardEvent('keydown', {altKey:false,
+  bubbles: true,
+  cancelBubble: false, 
+  cancelable: false,
+  charCode: 0,
+  code: "Enter",
+  composed: true,
+  ctrlKey: false,
+  currentTarget: null,
+  defaultPrevented: true,
+  detail: 0,
+  eventPhase: 0,
+  isComposing: false,
+  isTrusted: true,
+  key: "Enter",
+  keyCode: 13,
+  location: 0,
+  metaKey: false,
+  repeat: false,
+  returnValue: false,
+  shiftKey: false,
+  type: "keydown",
+  which: 13});
+
